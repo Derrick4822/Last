@@ -14,7 +14,7 @@ account_sid = 'AC07d94fcb3cdbb991483765018153af10'
 auth_token = '3353cf799baad07c7c63cbe4b557f617'
 client = Client(account_sid, auth_token)
 
-twilio_phone_numbers = []
+twilio_phone_numbers = [+18567547137]
 
 PODIO_CLIENT_ID = 'derricks-sms-automation'
 PODIO_CLIENT_SECRET = 'Ih0o4eyQ09rt07a3qNQjpnKcoVGy3vffipRHgMWW8s0Ycj4LUvsPQFC1Yv54SkwF'
