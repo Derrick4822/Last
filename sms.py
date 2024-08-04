@@ -1,10 +1,10 @@
 import time
 from flask import Flask, request, jsonify
-from twilio.rest import Client 
+from twilio.rest import Client
 import pandas as pd
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
-import random 
+import random
 import os
 from podio_utilis import authenticate_podio
 
@@ -14,7 +14,7 @@ account_sid = 'AC07d94fcb3cdbb991483765018153af10'
 auth_token = '3353cf799baad07c7c63cbe4b557f617'
 client = Client(account_sid, auth_token)
 
-twilio_phone_numbers = [+18567547137]
+twilio_phone_numbers = ['+18567547137']
 
 PODIO_CLIENT_ID = 'derricks-sms-automation'
 PODIO_CLIENT_SECRET = 'Ih0o4eyQ09rt07a3qNQjpnKcoVGy3vffipRHgMWW8s0Ycj4LUvsPQFC1Yv54SkwF'
@@ -23,10 +23,11 @@ PODIO_PASSWORD = 'Idontcar123!'
 
 podio_client = authenticate_podio(PODIO_CLIENT_ID, PODIO_CLIENT_SECRET, PODIO_USERNAME, PODIO_PASSWORD)
 
-csv_file = [__path__]
+csv_file = 'path/to/your/file.csv'  # Update this path to your actual CSV file location
 data = pd.read_csv(csv_file)
 
-initial_messages = ["Hey, is this {owner_name}? This is Derrick.",
+initial_messages = [
+    "Hey, is this {owner_name}? This is Derrick.",
     "Hi {owner_name}, Derrick here. Is this a good time to chat?",
     "Hello {owner_name}, it's Derrick. Are you available to talk?",
     "Hey {owner_name}, this is Derrick. Do you have a moment?",
@@ -34,7 +35,8 @@ initial_messages = ["Hey, is this {owner_name}? This is Derrick.",
     "Hello {owner_name}, Derrick here. Is now a good time?",
     "Hey {owner_name}, it's Derrick. Can we chat for a bit?",
     "Hi {owner_name}, Derrick. Got a minute to talk?",
-    "Hello {owner_name}, this is Derrick. Are you free to chat?"]
+    "Hello {owner_name}, this is Derrick. Are you free to chat?"
+]
 
 response_messages = [
     "great! did you have some time for a phone call? wanted to have a quick chat about your property.",
@@ -48,8 +50,8 @@ response_messages = [
     "did you have some time for a phone call?"
 ]
 
-
-follow_up_messages= ["just wanted to follow up, {owner_name}. did you have some time to discuss your property? if you'd rather not hear from me, just let me know.",
+follow_up_messages = [
+    "just wanted to follow up, {owner_name}. did you have some time to discuss your property? if you'd rather not hear from me, just let me know.",
     "hi {owner_name}, checking in to see if you're available for a quick chat about your property. if you're not interested, just say so.",
     "hello {owner_name}, following up to see if we can discuss your property. if this isn't a good time, just let me know.",
     "hey {owner_name}, still interested in having a quick chat about your property. if you'd like to opt out, just reply with 'stop'.",
@@ -57,45 +59,48 @@ follow_up_messages= ["just wanted to follow up, {owner_name}. did you have some 
     "hello {owner_name}, checking if you're available for a brief call about your property. if you want to opt out, just let me know.",
     "hey {owner_name}, wanted to see if you have some time to chat about your property. if you're not interested, just reply 'stop'.",
     "hi {owner_name}, following up to see if we can discuss your property. if you'd like to opt out, please let me know.",
-    "hello {owner_name}, did you have some time to chat about your property? if not, feel free to let me know."]
-
+    "hello {owner_name}, did you have some time to chat about your property? if not, feel free to let me know."
+]
 
 phone_number = random.choice(twilio_phone_numbers)
 
 scheduler = BackgroundScheduler()
 
-def send_follow_up (to_number, owner_name, address): 
- follow_up_message = random.choice(follow_up_messages).format(owner_name=owner_name, address=address)
- client.messages.create(body=follow_up_message,from_=phone_number, to=to_number)
-    
+def send_follow_up(to_number, owner_name, address):
+    follow_up_message = random.choice(follow_up_messages).format(owner_name=owner_name, address=address)
+    client.messages.create(body=follow_up_message, from_=phone_number, to=to_number)
+
 @app.route('/send_sms', methods=['POST'])
-def send_sms(): 
+def send_sms():
     now = datetime.now()
     start_time = now.replace(hour=9, minute=0, second=0, microsecond=0)
     end_time = now.replace(hour=19, minute=0, second=0, microsecond=0)
-    if start_time <= now <= end_time: 
+    if start_time <= now <= end_time:
         for i, row in data.iterrows():
-           owner_name = row['Owner_1_First_Name'], address = row['Address'], to_number = row['Owner_1_Phone Number']
-    message_body = random.choice(initial_messages).format(owner_name=owner_name)
-    client.messages.create(body=message_body, from_=phone_number,to=to_number)
+            owner_name = row['Owner_1_First_Name']
+            address = row['Address']
+            to_number = row['Owner_1_Phone Number']
+            message_body = random.choice(initial_messages).format(owner_name=owner_name)
+            client.messages.create(body=message_body, from_=phone_number, to=to_number)
 
-    scheduler.add_job(send_follow_up,'date', run_date = now + timedelta(days=7), args=[to_number,owner_name,address])
+            scheduler.add_job(send_follow_up, 'date', run_date=now + timedelta(days=7), args=[to_number, owner_name, address])
 
-    time.sleep(720)
-    return "Messages Sent!"
+        time.sleep(720)
+        return "Messages Sent!"
 
-@app.route('/response_handler',methods=['POST'])
+@app.route('/response_handler', methods=['POST'])
 def response_handler():
-    from_number = request.form['From'], body = request.form['BODY']
-    if "yes" in body.lower()or "sure" in body.lower()or "yeah" in body.lower()or "okay" in body.lower():
+    from_number = request.form['From']
+    body = request.form['Body']
+    if "yes" in body.lower() or "sure" in body.lower() or "yeah" in body.lower() or "okay" in body.lower():
         for i, row in data.iterrows():
-         if row['Phone_Number'] == from_number:
-          address = row['Address']
-         response_message = random.choice(response_messages).format(address=address) 
-         client.messages.create(body=response_message, from_=phone_number, to=from_number)
-         break 
+            if row['Phone_Number'] == from_number:
+                address = row['Address']
+                response_message = random.choice(response_messages).format(address=address)
+                client.messages.create(body=response_message, from_=phone_number, to=from_number)
+                break
     elif "stop" in body.lower() or "unsubscribe" in body.lower():
-     client.messages.create(body="Okay! U have been unsubscribed.")
+        client.messages.create(body="Okay! You have been unsubscribed.")
 
 def push_to_podio(podio_client, owner_name, from_number, address):
     item_data = {
@@ -103,5 +108,8 @@ def push_to_podio(podio_client, owner_name, from_number, address):
             "title": f"Lead for {address}",
             "name": owner_name,
             "phone_number": from_number,
-            "address": address}}
- 
+            "address": address
+        }
+    }
+    # Assuming you have a method to push data to Podio
+    # podio_client.create_item(item_data)
