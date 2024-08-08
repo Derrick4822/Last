@@ -1,18 +1,17 @@
-import time
+import os
 from flask import Flask, request, jsonify
 from twilio.rest import Client
 import pandas as pd
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 import random
-import os
 from podio_utilis import authenticate_podio
 
 app = Flask(__name__)
 
 print("Starting script...")
 
-csv_file = r'C:\\SMS Automation\\CSV\\Sms.csv'
+csv_file = os.environ.get('CSV_FILE_PATH', 'C:\\SMS Automation\\CSV\\Sms.csv')
 
 # This will raise an error if the file can't be read, which will help diagnose the issue
 try:
@@ -23,22 +22,18 @@ except Exception as e:
 
 print("Script finished")
 
-
-account_sid = 'AC07d94fcb3cdbb991483765018153af10'
-auth_token = '3353cf799baad07c7c63cbe4b557f617'
+account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
 client = Client(account_sid, auth_token)
 
-twilio_phone_numbers = ['+18567547137']
+twilio_phone_numbers = [os.environ.get('TWILIO_PHONE_NUMBER')]
 
-PODIO_CLIENT_ID = 'derricks-sms-automation'
-PODIO_CLIENT_SECRET = 'Ih0o4eyQ09rt07a3qNQjpnKcoVGy3vffipRHgMWW8s0Ycj4LUvsPQFC1Yv54SkwF'
-PODIO_USERNAME = 'ilyki4822@gmail.com'
-PODIO_PASSWORD = 'Idontcar123!'
+PODIO_CLIENT_ID = os.environ.get('PODIO_CLIENT_ID')
+PODIO_CLIENT_SECRET = os.environ.get('PODIO_CLIENT_SECRET')
+PODIO_USERNAME = os.environ.get('PODIO_USERNAME')
+PODIO_PASSWORD = os.environ.get('PODIO_PASSWORD')
 
 podio_client = authenticate_podio(PODIO_CLIENT_ID, PODIO_CLIENT_SECRET, PODIO_USERNAME, PODIO_PASSWORD)
-
-csv_file = 'C:\\SMS Automation\\CSV\\Sms.csv'  # Update this path to your actual CSV file location
-data = pd.read_csv(csv_file)
 
 initial_messages = [
     "Hey, is this {owner_name}? This is Derrick.",
@@ -76,7 +71,7 @@ follow_up_messages = [
     "hello {owner_name}, did you have some time to chat about your property? if not, feel free to let me know."
 ]
 
-phone_number = random.choice(twilio_phone_numbers)
+phone_number = os.environ.get('TWILIO_PHONE_NUMBER')
 
 scheduler = BackgroundScheduler()
 
