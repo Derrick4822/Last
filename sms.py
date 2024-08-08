@@ -10,6 +10,20 @@ from podio_utilis import authenticate_podio
 
 app = Flask(__name__)
 
+print("Starting script...")
+
+csv_file = r'C:\\SMS Automation\\CSV\\Sms.csv'
+
+# This will raise an error if the file can't be read, which will help diagnose the issue
+try:
+    data = pd.read_csv(csv_file)
+    print("CSV loaded successfully")
+except Exception as e:
+    print(f"Error loading CSV: {e}")
+
+print("Script finished")
+
+
 account_sid = 'AC07d94fcb3cdbb991483765018153af10'
 auth_token = '3353cf799baad07c7c63cbe4b557f617'
 client = Client(account_sid, auth_token)
@@ -23,7 +37,7 @@ PODIO_PASSWORD = 'Idontcar123!'
 
 podio_client = authenticate_podio(PODIO_CLIENT_ID, PODIO_CLIENT_SECRET, PODIO_USERNAME, PODIO_PASSWORD)
 
-csv_file = 'path/to/your/file.csv'  # Update this path to your actual CSV file location
+csv_file = 'C:\\SMS Automation\\CSV\\Sms.csv'  # Update this path to your actual CSV file location
 data = pd.read_csv(csv_file)
 
 initial_messages = [
