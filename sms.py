@@ -77,9 +77,9 @@ def send_sms():
     end_time = now.replace(hour=19, minute=0, second=0, microsecond=0)
     if start_time <= now <= end_time:
         for i, row in data.iterrows():
-            owner_name = row['Owner_1_First_Name']
+            owner_name = row['Owner 1 First Name']
             address = row['Address']
-            to_number = row['Owner_1_Phone Number']
+            to_number = row['Owner 1 Phone Number']
             message_body = random.choice(initial_messages).format(owner_name=owner_name)
             client.messages.create(body=message_body, from_=phone_number, to=to_number)
 
