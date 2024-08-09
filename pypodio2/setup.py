@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='your_project_name',
+    name='pypodio2',
     version='1.0.0',
     packages=find_packages(),
     install_requires=[
@@ -40,7 +40,7 @@ setup(
 "urllib3",
 "Werkzeug",
 "yarl",
-"pypodio2 @ git+https://github.com/Derrick4822/Last.git",
 "requests" # Private repository package
     ],
+    package_dir={'':'.'},
 )
