@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 from pathlib import Path
 
-csv_file = os.environ.get('CSV_FILE_PATH', '/Project_Files/CSV/Sms.csv')
+csv_file = os.environ.get('CSV_FILE_PATH', 'C:\Project Files\CSV\Sms.csv')
 csv_path = Path(csv_file)
 
 try:
