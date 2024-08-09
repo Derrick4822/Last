@@ -9,18 +9,16 @@ from podio_utilis import authenticate_podio
 
 app = Flask(__name__)
 
-print("Starting script...")
+from pathlib import Path
 
 csv_file = os.environ.get('CSV_FILE_PATH', '/Project_Files/CSV/Sms.csv')
+csv_path = Path(csv_file)
 
-# This will raise an error if the file can't be read, which will help diagnose the issue
 try:
-    data = pd.read_csv(csv_file)
+    data = pd.read_csv(csv_path)
     print("CSV loaded successfully")
 except Exception as e:
     print(f"Error loading CSV: {e}")
-
-print("Script finished")
 
 account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
 auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
@@ -86,8 +84,8 @@ def send_sms():
     end_time = now.replace(hour=19, minute=0, second=0, microsecond=0)
     if start_time <= now <= end_time:
         for i, row in data.iterrows():
-            owner_name = row['Owner 1 First Name']
-            address = row['Address']
+            owner_name = row['Owner 1 First Name'].title()
+            address = row['Address'].title()
             to_number = row['Owner 1 Phone Number']
             message_body = random.choice(initial_messages).format(owner_name=owner_name)
             client.messages.create(body=message_body, from_=phone_number, to=to_number)
@@ -104,7 +102,7 @@ def response_handler():
     if "yes" in body.lower() or "sure" in body.lower() or "yeah" in body.lower() or "okay" in body.lower():
         for i, row in data.iterrows():
             if row['Phone_Number'] == from_number:
-                address = row['Address']
+                address = row['Address'].title()
                 response_message = random.choice(response_messages).format(address=address)
                 client.messages.create(body=response_message, from_=phone_number, to=from_number)
                 break
