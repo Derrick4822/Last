@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 print("Starting script...")
 
-csv_file = os.environ.get('CSV_FILE_PATH', 'C:\\SMS Automation\\CSV\\Sms.csv')
+csv_file = os.environ.get('CSV_FILE_PATH', 'C:\\Project_Files\\CSV\\Sms.csv')
 
 # This will raise an error if the file can't be read, which will help diagnose the issue
 try:
